@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $1 <bucket-name>"
+  exit 1
+fi
+# Assign the first argument to a variable
+BUCKET_NAME=$1
+# Check if the bucket exists
+if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+  # If the bucket exists, delete it
+  aws s3api delete-bucket --bucket "$BUCKET_NAME"
+  if [ $? -eq 0 ]; then
+    echo "Bucket $BUCKET_NAME deleted successfully."
+  else
+    echo "Failed to delete bucket $BUCKET_NAME."
+  fi
+else
+  echo "Bucket $BUCKET_NAME does not exist."
+fi
+
+# Check if the bucket is empty
+if [ "$(aws s3api list-objects --bucket "$BUCKET_NAME" --query 'Contents' --output text)" ]; then
+  echo "Bucket $BUCKET_NAME is not empty."
+else
+  echo "Bucket $BUCKET_NAME is empty."
+fi
+
+aws s3api delete-bucket --bucket "$BUCKET_NAME"
+if [ $? -eq 0 ]; then
+  echo "Bucket $BUCKET_NAME deleted successfully."
+else
+  echo "Failed to delete bucket $BUCKET_NAME."
+fi

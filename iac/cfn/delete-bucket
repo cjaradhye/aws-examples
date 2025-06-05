@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo "== delete s3 bucket via cfn stack"
+
+STACK_NAME="mynewnewbucketwithcfn"
+
+aws cloudformation delete-stack \
+  --stack-name $STACK_NAME \
+  --region ap-south-1
+#   --no-execute-changeset

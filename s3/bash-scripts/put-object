@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e 
+
+#where to put the object
+# This script uploads a file to an S3 bucket using the AWS CLI.
+# Ensure the AWS CLI is installed and configured with the necessary permissions.
+# Ensure the output directory exists
+OUTPUT_DIR="/tmp/s3-put-object"
+
+#remove the output directory if it exists
+rm -r "$OUTPUT_DIR"
+
+#create the output directory
+mkdir -p "$OUTPUT_DIR"
+
+# Define the S3 bucket and object key
+BUCKET_NAME="your-bucket-name"
+OBJECT_KEY="your-object-key"
+# Define the local file to upload
+LOCAL_FILE="/path/to/your/local/file.txt"
+# Upload the file to the S3 bucket
+aws s3 cp "$LOCAL_FILE" "s3://$BUCKET_NAME/$OBJECT_KEY"
+
+NUM_FILES=$(RANDOM%6 + 5)
+
+for i in $(seq 1 $NUM_FILES); do
+  # Generate a random file name
+  FILE_NAME="$OUTPUT_DIR/file_$i.txt"
+  #create a random data and write it to the file
+  dd if=
+  # Create a sample file in the output directory
+  echo "This is a sample file $i" > "$OUTPUT_DIR/$FILE_NAME"
+  
+  # Upload the file to the S3 bucket
+  aws s3 cp "$OUTPUT_DIR/$FILE_NAME" "s3://$BUCKET_NAME/$FILE_NAME"
+done

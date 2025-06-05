@@ -1,0 +1,9 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: A simple S3 bucket.
+# Resources section
+Resources:
+  #we don't need to specify the name of the resource, it will be generated automatically
+  MyS3Bucket: 
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+      

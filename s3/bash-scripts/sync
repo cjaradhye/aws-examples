@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <bucket-name> <local-directory>"
+  exit 1
+fi
+
+# Assign the arguments to variables
+BUCKET_NAME=$1
+LOCAL_DIR=$2
+# Check if the bucket exists
+if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+  # If the bucket exists, sync the local directory to the S3 bucket
+  aws s3 sync "$LOCAL_DIR" "s3://$BUCKET_NAME/"
+  if [ $? -eq 0 ]; then
+    echo "Successfully synced $LOCAL_DIR to s3://$BUCKET_NAME/"
+  else
+    echo "Failed to sync $LOCAL_DIR to s3://$BUCKET_NAME/"
+    exit 1
+  fi
+else
+  echo "Bucket $BUCKET_NAME does not exist."
+  exit 1
+fi

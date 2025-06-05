@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+gem 'aws-sdk-s3'
+# This is a dependency for the AWS SDK for Ruby, which provides an interface to Amazon S3.
+gem 'pry'
+# Pry is a powerful alternative to the standard IRB shell for Ruby, providing advanced features like syntax highlighting and command history.
+gem 'nokogiri'
+# Nokogiri is a gem for parsing HTML and XML in Ruby, making it easier to work with web data.
