@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <vpc-name>"
+    exit 1
+fi
+VPC_NAME=$1
+
+#create a vpc
+aws ec2 create-vpc \
+    --cidr-block 17.0.0.0/16 \
+    --tag-specifications "ResourceType=vpc,Tags=[{Key=Name,Value=$VPC_NAME}]" \
+    --output text \
+    --query 'Vpc.VpcId' \
+    --region ap-south-1
+
+#initialize internet gateway
+aws ec2 create-internet-gateway \
+    --tag-specifications "ResourceType=internet-gateway,Tags=[{Key=Name,Value=$VPC_NAME-igw}]" \
+    --output text \
+    --query 'InternetGateway.InternetGatewayId' \
+    --region ap-south-1
+
+#attach internet gateway to vpc
+aws ec2 attach-internet-gateway \
+    --internet-gateway-id $(aws ec2 describe-internet-gateways --filters "Name=tag:Name,Values=$VPC_NAME-igw" --query 'InternetGateways[0].InternetGatewayId' --output text) \
+    --vpc-id $(aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$VPC_NAME" --query 'Vpcs[0].VpcId' --output text) \
+    --region ap-south-1
+
+#initialize route table
+aws ec2 create-route-table \
+    --vpc-id $(aws ec2 describe-vpcs --filters "Name=tag:Name,Values=$VPC_NAME" --query 'Vpcs[0].VpcId' --output text) \
+    --tag-specifications "ResourceType=route-table,Tags=[{Key=Name,Value=$VPC_NAME-rt}]" \
+    --output text \
+    --query 'RouteTable.RouteTableId' \
+    --region ap-south-1
+#add route to route table
+aws ec2 create-route \
+    --route-table-id $(aws ec2 describe-route-tables \
+    --filters "Name=tag:Name,Values=$VPC_NAME-rt" \
+    --query 'RouteTables[0].RouteTableId' \
+    --output text) \
+    --destination-cidr-block 0.0.0.0/0 \
+    --gateway-id $(aws ec2 describe-internet-gateways --filters "Name=tag:Name,Values=$VPC_NAME-igw" --query 'InternetGateways[0].InternetGatewayId' --output text) \
+    --region ap-south-1
